@@ -1,0 +1,647 @@
+Hier ist der aktualisierte Code für deine Landingpage. Ich habe die **10 Leitprinzipien** offiziell in **„Die 10 Gebote von DIRKS Legal OS“** umbenannt und eine interaktive **Klick-Funktion mit Modal-Popup / Akkordeon** eingebaut: Wenn man auf eines der 10 Gebote klickt, öffnet sich direkt eine ausführliche Erklärung, die das jeweilige Prinzip detailliert beleuchtet.
+
+Du kannst den Code kopieren, als `index.html` speichern und wie gewohnt hochladen:
+
+```html
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIRKS Legal OS V8 | Hoffnung, Klarheit & Behörden-Triage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'ui-monospace', 'monospace']
+                    },
+                    colors: {
+                        legal: {
+                            bg: '#050507',
+                            surface: '#0e0e11',
+                            line: '#26262c',
+                            ink: '#f4f4f6',
+                            grayText: '#9e9ea6',
+                            red: '#e2001a',
+                            redNeon: '#ff1e42',
+                            redDim: '#59020d',
+                            success: '#00ffcc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --red-neon: #ff1e42;
+            --red-dim: #59020d;
+            --bg: #050507;
+            --surface: #0e0e11;
+            --line: #26262c;
+            --ink: #f4f4f6;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--ink);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel:hover {
+            border-color: var(--red-neon);
+            box-shadow: 0 0 35px rgba(255, 30, 66, 0.35), inset 0 1px 0 rgba(255, 30, 66, 0.1);
+        }
+        .neon-glow-text {
+            text-shadow: 0 0 12px rgba(255, 30, 66, 0.6), 0 0 25px rgba(255, 30, 66, 0.3);
+        }
+        .hash-line::before {
+            content: "SHA-256:";
+            color: var(--red-neon);
+            margin-right: 8px;
+            font-family: monospace;
+        }
+        .btn-neon {
+            background-color: transparent;
+            color: var(--red-neon);
+            border: 1px solid var(--red-neon);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 30, 66, 0.25);
+        }
+        .btn-neon:hover {
+            background-color: var(--red-neon);
+            color: #ffffff;
+            box-shadow: 0 0 40px rgba(255, 30, 66, 0.9), 0 0 80px rgba(255, 30, 66, 0.4);
+            transform: translateY(-2px);
+        }
+        .btn-neon-solid {
+            background-color: var(--red-neon);
+            color: #ffffff;
+            border: 1px solid var(--red-neon);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 25px rgba(255, 30, 66, 0.5);
+        }
+        .btn-neon-solid:hover {
+            background-color: transparent;
+            color: var(--red-neon);
+            box-shadow: 0 0 45px rgba(255, 30, 66, 0.95), 0 0 90px rgba(255, 30, 66, 0.5);
+            transform: translateY(-2px);
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--line);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--red-dim);
+        }
+        .matrix-bg {
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(89, 2, 13, 0.25) 0%, transparent 60%),
+                linear-gradient(rgba(5, 5, 7, 0.96), rgba(5, 5, 7, 0.96)),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(38, 38, 44, 0.15) 2px, rgba(38, 38, 44, 0.15) 4px);
+            background-size: 100% 100%, 100% 100%, 100% 4px;
+        }
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(1000%); }
+        }
+        .scanline::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: rgba(255, 30, 66, 0.6);
+            box-shadow: 0 0 15px rgba(255, 30, 66, 0.9);
+            animation: scanline 5s linear infinite;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col matrix-bg">
+
+    <nav class="fixed w-full z-50 glass-panel border-b border-legal-line backdrop-blur-xl bg-opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 border-2 border-legal-redNeon flex items-center justify-center bg-legal-surface shadow-[0_0_20px_rgba(255,30,66,0.6)]">
+                        <svg class="w-6 h-6 text-legal-redNeon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-xl tracking-wider text-legal-ink block">DIRKS <span class="text-legal-redNeon font-light neon-glow-text">LEGAL OS V8</span></span>
+                        <span class="text-[10px] font-mono text-legal-redNeon tracking-widest uppercase font-bold">CYBER-SECURITY & BÜRGER-SCHUTZSCHILD</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-6 text-sm font-mono">
+                    <a href="#eyecatcher" class="text-legal-redNeon hover:text-legal-ink transition font-bold drop-shadow-[0_0_8px_rgba(255,30,66,0.6)]">⚡ Live-Triage</a>
+                    <a href="#ki-terminal" class="text-legal-redNeon hover:text-legal-ink transition font-bold">🤖 V8-KI-Core</a>
+                    <a href="#gebote" class="text-legal-redNeon hover:text-legal-ink transition font-bold">📜 Die 10 Gebote</a>
+                    <a href="#preise" class="text-legal-grayText hover:text-legal-ink transition">Preise</a>
+                </div>
+                <div>
+                    <a href="#kontakt" class="px-5 py-2.5 text-xs font-mono btn-neon uppercase tracking-widest hidden sm:inline-block font-extrabold">Fall einreichen</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="fixed top-20 w-full z-40 bg-legal-surface text-legal-ink overflow-hidden border-b border-legal-line text-xs font-mono py-2 shadow-xl">
+        <div class="whitespace-nowrap animate-[marquee_25s_linear_infinite] inline-block font-bold">
+            <span class="mx-4 text-legal-redNeon">[SYS_STATUS: READY]</span> SCHLUSS MIT WILLKÜR & AMTSDEUTSCH! 
+            <span class="mx-4 text-legal-redNeon">>></span> Jeder Mensch hat das Recht auf glasklare Fakten. 
+            <span class="mx-4 text-legal-redNeon">>></span> 1-2 Briefantworten für den kleinen Taler. 
+            <span class="mx-4 text-legal-redNeon">>></span> Klicke auf die 10 Gebote für tiefe Einblicke.
+        </div>
+    </div>
+    
+    <style>
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+    </style>
+
+    <main class="flex-grow pt-36 pb-20">
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-legal-surface border border-legal-redNeon text-legal-redNeon text-xs font-mono mb-6 shadow-[0_0_20px_rgba(255,30,66,0.3)] font-bold">
+                        <span class="w-2.5 h-2.5 rounded-full bg-legal-redNeon animate-ping"></span> HOFFNUNG & KLARE KANTE GEGEN ÄMTER-WILLKÜR
+                    </div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 text-legal-ink tracking-tight">
+                        Wieder <span class="text-legal-redNeon neon-glow-text">Hoffnung</span> im Behörden-Dschungel.
+                    </h1>
+                    <p class="text-lg text-legal-grayText mb-8 leading-relaxed font-light">
+                        Sie fühlen sich von Bescheiden, Fristen und dem kalten Ton von Ämtern alleingelassen? DIRKS Legal OS V8 sortiert Ihre Akte, entlarvt die Fehler der Gegenseite und gibt Ihnen Ihre juristische Sicherheit zurück – absolut menschlich, unerbittlich in der Sache und für jeden bezahlbar.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#ki-terminal" class="px-8 py-4 btn-neon-solid rounded-none font-mono font-semibold transition text-center uppercase tracking-wider text-sm flex items-center justify-center gap-2">
+                            <span>🤖 Direkt V8-Fall prüfen</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                        </a>
+                        <a href="#gebote" class="px-8 py-4 btn-neon rounded-none font-mono font-semibold transition text-center uppercase tracking-wider text-sm font-bold">
+                            📜 Die 10 Gebote entdecken
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="glass-panel rounded-none p-6 shadow-2xl border-2 border-legal-redNeon font-mono text-sm relative overflow-hidden group scanline">
+                    <div class="absolute inset-0 bg-legal-redNeon opacity-10 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"></div>
+                    <div class="flex justify-between items-center mb-4 border-b border-legal-line pb-4">
+                        <div class="flex gap-2">
+                            <div class="w-3 h-3 bg-legal-line"></div>
+                            <div class="w-3 h-3 bg-legal-line"></div>
+                            <div class="w-3 h-3 bg-legal-redNeon animate-ping"></div>
+                        </div>
+                        <span class="text-legal-redNeon text-xs font-bold">[DIRKS_V8_SECURE_CORE]</span>
+                    </div>
+                    <div class="text-legal-grayText space-y-3">
+                        <p class="text-legal-redNeon font-bold">> STATUS: BÜRGERHILFE & SCHUTZSCHILD ONLINE</p>
+                        <p>> Lade Aktenlage & Behördenschreiben... <span class="text-legal-ink font-bold">[ERFOLGREICH]</span></p>
+                        <p>> Trennung von Emotionen & objektiven Beweisen... <span class="text-legal-ink font-bold">[AKTIV]</span></p>
+                        <p class="mt-4 hash-line text-xs text-legal-grayText">8f92b4c8996fb92427ae41e4649b934ca495991b7852c99f8d4d5d8f298fc1c1</p>
+                        <br>
+                        <p class="text-legal-ink font-bold">> Kernversprechen:</p>
+                        <p class="text-legal-grayText italic">> "Der Mensch führt, das System ordnet. Niemand wird im Regen stehen gelassen."</p>
+                        <div class="mt-4 border-t border-legal-line pt-4 flex items-center">
+                            <span class="text-legal-redNeon mr-2 font-bold">READY></span>
+                            <span class="w-2.5 h-4 bg-legal-redNeon inline-block animate-pulse"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Eyecatcher Interactive Live Triage -->
+        <section id="eyecatcher" class="py-20 bg-legal-surface border-y border-legal-line relative overflow-hidden">
+            <div class="absolute inset-0 bg-legal-redDim opacity-10 pointer-events-none"></div>
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="glass-panel border-2 border-legal-redNeon p-8 sm:p-12 shadow-[0_0_60px_rgba(255,30,66,0.35)] bg-gradient-to-b from-legal-surface to-[#0d0205]">
+                    <div class="text-center max-w-2xl mx-auto mb-10">
+                        <span class="inline-block px-3 py-1 bg-legal-redDim text-legal-redNeon font-mono text-xs uppercase tracking-widest font-extrabold mb-3 border border-legal-redNeon shadow-[0_0_15px_rgba(255,30,66,0.5)]">
+                            ⚡ Live-Triage & Sofort-Check
+                        </span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-legal-ink font-mono uppercase tracking-tight">
+                            Welches Problem liegt auf Ihrem Tisch?
+                        </h2>
+                        <p class="text-legal-grayText text-sm mt-2 font-light">
+                            Wählen Sie Ihr akutes Szenario für eine sofortige V8-Analyse aus.
+                        </p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
+                            <button onclick="runCheck('bescheid')" id="btn-bescheid" class="p-4 border border-legal-line bg-legal-bg text-legal-ink hover:border-legal-redNeon hover:shadow-[0_0_20px_rgba(255,30,66,0.3)] transition text-left flex flex-col justify-between group">
+                                <span class="text-legal-grayText group-hover:text-legal-redNeon font-bold mb-2">01 // SZENARIO</span>
+                                <span class="font-bold">Unverständlicher Bescheid / Forderung</span>
+                            </button>
+                            <button onclick="runCheck('frist')" id="btn-frist" class="p-4 border border-legal-line bg-legal-bg text-legal-ink hover:border-legal-redNeon hover:shadow-[0_0_20px_rgba(255,30,66,0.3)] transition text-left flex flex-col justify-between group">
+                                <span class="text-legal-grayText group-hover:text-legal-redNeon font-bold mb-2">02 // SZENARIO</span>
+                                <span class="font-bold">Kurze Frist & Druck vom Amt</span>
+                            </button>
+                            <button onclick="runCheck('widerspruch')" id="btn-widerspruch" class="p-4 border border-legal-line bg-legal-bg text-legal-ink hover:border-legal-redNeon hover:shadow-[0_0_20px_rgba(255,30,66,0.3)] transition text-left flex flex-col justify-between group">
+                                <span class="text-legal-grayText group-hover:text-legal-redNeon font-bold mb-2">03 // SZENARIO</span>
+                                <span class="font-bold">Widerspruch & Aktenfehler</span>
+                            </button>
+                        </div>
+
+                        <div id="check-result" class="glass-panel p-6 border-legal-redDim bg-legal-bg font-mono text-xs text-legal-grayText space-y-3 min-h-[160px] flex flex-col justify-center">
+                            <p class="text-legal-redNeon font-bold text-center animate-pulse">⏳ Warten auf Eingabe... Wählen Sie oben ein Szenario, um die Triage zu starten.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gemini AI Terminal Integration -->
+        <section id="ki-terminal" class="py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass-panel border-2 border-legal-redNeon p-8 sm:p-10 shadow-[0_0_50px_rgba(255,30,66,0.3)] bg-[#090204]">
+                <div class="flex items-center justify-between mb-6 border-b border-legal-line pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3.5 h-3.5 bg-legal-redNeon animate-ping rounded-full shadow-[0_0_10px_#ff1e42]"></div>
+                        <h3 class="font-mono text-lg font-bold text-legal-ink uppercase">V8 Live-Fallanalyse (Gemini AI Core)</h3>
+                    </div>
+                    <span class="text-xs font-mono text-legal-redNeon border border-legal-redNeon px-2.5 py-1 font-bold shadow-[0_0_10px_rgba(255,30,66,0.3)]">SECURE_GATEWAY</span>
+                </div>
+                <p class="text-sm text-legal-grayText mb-6 font-light">
+                    Geben Sie hier stichpunktartig ein, was Ihnen vorgeworfen wird oder welcher Behördenbrief Ihnen vorliegt. Unsere V8-Logik analysiert den Fall faktenbasiert in Echtzeit über die Gemini API.
+                </p>
+                <div class="space-y-4">
+                    <textarea id="user-case-input" rows="4" class="w-full bg-legal-bg border border-legal-line text-legal-ink font-mono text-sm p-4 rounded-none focus:outline-none focus:border-legal-redNeon focus:ring-1 focus:ring-legal-redNeon transition" placeholder="Z. B. Die Krankenkasse droht mit Einstellung der Leistungen innerhalb von 3 Tagen..."></textarea>
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <span class="text-xs font-mono text-legal-grayText">Sicherheitsstandard: SHA-256 Validierung & Stopp-Regel</span>
+                        <button onclick="runGeminiAnalysis()" id="analyze-btn" class="w-full sm:w-auto px-8 py-3.5 btn-neon-solid font-mono text-xs uppercase tracking-widest font-bold">
+                            Analyse starten ⚡
+                        </button>
+                    </div>
+                </div>
+
+                <div id="gemini-output-container" class="mt-8 hidden">
+                    <div class="border border-legal-redNeon bg-legal-bg p-6 font-mono text-xs space-y-3 shadow-[0_0_20px_rgba(255,30,66,0.15)]">
+                        <div class="text-legal-redNeon font-bold uppercase border-b border-legal-line pb-2 flex justify-between">
+                            <span>[V8_SYSTEM_ANALYSE_ERGEBNIS]</span>
+                            <span>STATUS: SUCCESS</span>
+                        </div>
+                        <div id="gemini-output-text" class="text-legal-ink leading-relaxed whitespace-pre-wrap"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DIE 10 GEBOTE (INTERAKTIV MIT DETAIL-POPUP) -->
+        <section id="gebote" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-legal-redNeon font-mono text-xs uppercase tracking-widest bg-legal-surface px-3.5 py-1.5 border border-legal-redNeon shadow-[0_0_15px_rgba(255,30,66,0.2)] font-bold">Unumstößliches Fundament</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold mt-4 mb-4 font-mono uppercase text-legal-ink tracking-tight">Die 10 Gebote von DIRKS Legal OS V8</h2>
+                <p class="text-legal-grayText text-lg font-light">Klicken Sie auf ein Gebot, um die ausführliche technische und menschliche Erklärung einzusehen.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Gebot 1 -->
+                <div onclick="openGebot(1)" class="glass-panel p-5 border-t-2 border-t-legal-line hover:border-t-legal-redNeon transition-all cursor-pointer group hover:scale-[1.02]">
+                    <div class="font-mono text-legal-redDim text-xl font-extrabold mb-2 group-hover:text-legal-redNeon transition-colors">01</div>
+                    <h3 class="text-xs font-bold uppercase mb-1 text-legal-ink">Der Mensch führt</h3>
+                    <p class="text-[11px] text-legal-grayText">Die KI ordnet und unterstützt, Sie entscheiden. [Klicken für Details]</p>
+                </div>
+                <!-- Gebot 2 -->
+                <div onclick="openGebot(2)" class="glass-panel p-5 border-t-2 border-t-legal-line hover:border-t-legal-redNeon transition-all cursor-pointer group hover:scale-[1.02]">
+                    <div class="font-mono text-legal-redDim text-xl font-extrabold mb-2 group-hover:text-legal-redNeon transition-colors">02</div>
+                    <h3 class="text-xs font-bold uppercase mb-1 text-legal-ink">Quellen vor Behauptungen</h3>
+                    <p class="text-[11px] text-legal-grayText">Jede Aussage stützt sich auf harte Fakten. [Klicken für Details]</p>
+                </div>
+                <!-- Gebot 3 -->
+                <div onclick="openGebot(3)" class="glass-panel p-5 border-t-2 border-t-legal-line hover:border-t-legal-redNeon transition-all cursor-pointer group hover:scale-[1.02]">
+                    <div class="font-mono text-legal-redDim text-xl font-extrabold mb-2 group-hover:text-legal-redNeon transition-colors">03</div>
+                    <h3 class="text-xs font-bold uppercase mb-1 text-legal-ink">Ergebnisoffenheit</h3>
+                    <p class="text-[11px] text-legal-grayText">Gegenpunkte werden aktiv geprüft. [Klicken für Details]</p>
+                </div>
+                <!-- Gebot 4 -->
+                <div onclick="openGebot(4)" class="glass-panel p-5 border-t-2 border-t-legal-line hover:border-t-legal-redNeon transition-all cursor-pointer group hover:scale-[1.02]">
+                    <div class="font-mono text-legal-redDim text-xl font-extrabold mb-2 group-hover:text-legal-redNeon transition-colors">04</div>
+                    <h3 class="text-xs font-bold uppercase mb-1 text-legal-ink">Keine Erfindungen</h3>
+                    <p class="text-[11px] text-legal-grayText">Keine erfundenen Urteile oder Paragraphen. [Klicken für Details]</p>
+                </div>
+                <!-- Gebot 5 -->
+                <div onclick="openGebot(5)" class="glass-panel p-5 border-t-2 border-t-legal-line hover:border-t-legal-redNeon transition-all cursor-pointer group hover:scale-[1.02]">
+                    <div class="font-mono text-legal-redDim text-xl font-extrabold mb-2 group-hover:text-legal-redNeon transition-colors">05</div>
+                    <h3 class="text-xs font-bold uppercase mb-1 text-legal-ink">Transparente Unsicherheit</h3>
+                    <p class="text-[11px] text-legal-grayText">Unklarheiten werden sofort markiert. [Klicken für Details]</p>
+                </div>
+                <!-- Gebot 6 -->
+                <div onclick="openGebot(6)" class="glass-panel p-5 border-t-2 border-t-legal-line hover:border-t-legal-redNeon transition-all cursor-pointer group hover:scale-[1.02]">
+                    <div class="font-mono text-legal-redDim text-xl font-extrabold mb-2 group-hover:text-legal-redNeon transition-colors">06</div>
+                    <h3 class="text-xs font-bold uppercase mb-1 text-legal-ink">Beweis vor Schluss</h3>
+                    <p class="text-[11px] text-legal-grayText">Tatsache und Bewertung strikt getrennt. [Klicken für Details]</p>
+                </div>
+                <!-- Gebot 7 -->
+                <div onclick="openGebot(7)" class="glass-panel p-5 border-t-2 border-t-legal-line hover:border-t-legal-redNeon transition-all cursor-pointer group hover:scale-[1.02]">
+                    <div class="font-mono text-legal-redDim text-xl font-extrabold mb-2 group-hover:text-legal-redNeon transition-colors">07</div>
+                    <h3 class="text-xs font-bold uppercase mb-1 text-legal-ink">Menschliche Freigabe</h3>
+                    <p class="text-[11px] text-legal-grayText">Kein Versand ohne dokumentierte Freigabe. [Klicken für Details]</p>
+                </div>
+                <!-- Gebot 8 -->
+                <div onclick="openGebot(8)" class="glass-panel p-5 border-t-2 border-t-legal-line hover:border-t-legal-redNeon transition-all cursor-pointer group hover:scale-[1.02]">
+                    <div class="font-mono text-legal-redDim text-xl font-extrabold mb-2 group-hover:text-legal-redNeon transition-colors">08</div>
+                    <h3 class="text-xs font-bold uppercase mb-1 text-legal-ink">Datensparsamkeit</h3>
+                    <p class="text-[11px] text-legal-grayText">Absoluter Schutz sensibler Privatdaten. [Klicken für Details]</p>
+                </div>
+                <!-- Gebot 9 -->
+                <div onclick="openGebot(9)" class="glass-panel p-5 border-t-2 border-t-legal-line hover:border-t-legal-redNeon transition-all cursor-pointer group hover:scale-[1.02]">
+                    <div class="font-mono text-legal-redDim text-xl font-extrabold mb-2 group-hover:text-legal-redNeon transition-colors">09</div>
+                    <h3 class="text-xs font-bold uppercase mb-1 text-legal-ink">Deeskalation</h3>
+                    <p class="text-[11px] text-legal-grayText">Bestimmt, sachlich, ohne Schikanen. [Klicken für Details]</p>
+                </div>
+                <!-- Gebot 10 -->
+                <div onclick="openGebot(10)" class="glass-panel p-5 border-t-2 border-t-legal-line hover:border-t-legal-redNeon transition-all cursor-pointer group hover:scale-[1.02]">
+                    <div class="font-mono text-legal-redDim text-xl font-extrabold mb-2 group-hover:text-legal-redNeon transition-colors">10</div>
+                    <h3 class="text-xs font-bold uppercase mb-1 text-legal-ink">Nachvollziehbarkeit</h3>
+                    <p class="text-[11px] text-legal-grayText">Jeder Schritt im SHA-256 Audit-Trail. [Klicken für Details]</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODAL FÜR AUSFÜHRLICHE GEBOTE-INFO -->
+        <div id="gebot-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm hidden px-4">
+            <div class="glass-panel border-2 border-legal-redNeon max-w-2xl w-full p-8 relative bg-legal-surface shadow-[0_0_50px_rgba(255,30,66,0.4)]">
+                <button onclick="closeGebotModal()" class="absolute top-4 right-4 text-legal-redNeon font-mono text-lg font-bold hover:text-white">✕ SCHLIESSEN</button>
+                <div id="modal-content" class="font-mono text-xs space-y-4 text-legal-ink">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Preise Section -->
+        <section id="preise" class="bg-legal-surface border-y border-legal-line py-24 relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-legal-redNeon font-mono text-xs uppercase tracking-widest bg-legal-bg px-3.5 py-1.5 border border-legal-redNeon shadow-[0_0_15px_rgba(255,30,66,0.2)] font-bold">Transparente Hilfe für den schmalen Taler</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold mt-4 mb-4 text-legal-ink font-mono tracking-tight">Einfache Briefantworten & faire Konditionen</h2>
+                    <p class="text-legal-grayText text-lg font-light">
+                        Gute juristische Vorbereitung und saubere Antworten dürfen kein Luxus sein. Wir halten die Hürden für Sie so niedrig wie möglich.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    <div class="glass-panel p-8 border-legal-line flex flex-col justify-between">
+                        <div>
+                            <div class="text-legal-redNeon font-mono text-xs uppercase tracking-widest mb-2 font-bold">Alltagshilfe / Klein-Fälle</div>
+                            <h3 class="text-2xl font-bold text-legal-ink mb-4">1-2 Briefantworten an Ämter</h3>
+                            <p class="text-legal-grayText text-sm mb-6 leading-relaxed">
+                                Sie haben einen kurzen Brief von einer Behörde bekommen und brauchen eine präzise, sachliche und professionelle Erwiderung? Wir formulieren das für Sie so, dass die Sachbearbeiter merken: Hier weiß jemand genau, was rechtens ist.
+                            </p>
+                            <div class="font-mono text-xs text-legal-grayText space-y-2.5 mb-6">
+                                <div class="flex items-center gap-2">✓ Fakten-Triage des Schreibens</div>
+                                <div class="flex items-center gap-2">✓ Professioneller Entwurf auf den Punkt</div>
+                                <div class="flex items-center gap-2">✓ Fristen-Check inklusive</div>
+                            </div>
+                        </div>
+                        <div class="border-t border-legal-line pt-6 flex items-center justify-between">
+                            <span class="font-mono text-xs text-legal-grayText">Beitrag:</span>
+                            <span class="font-mono text-xl font-bold text-legal-redNeon">Für kleinen Taler / Spende</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-8 border-2 border-legal-redNeon shadow-[0_0_35px_rgba(255,30,66,0.25)] flex flex-col justify-between bg-gradient-to-b from-legal-surface to-[#180408]">
+                        <div>
+                            <div class="text-legal-redNeon font-mono text-xs uppercase tracking-widest mb-2 font-bold">Komplexe Verfahren & Eskalation</div>
+                            <h3 class="text-2xl font-bold text-legal-ink mb-4">Umfangreiche Fall-Analyse</h3>
+                            <p class="text-legal-grayText text-sm mb-6 leading-relaxed">
+                                Für hartnäckige Auseinandersetzungen mit DRV, Krankenkassen oder Behörden. Hier setzen wir die volle V8-Architektur ein: Beweismatrix, Widerspruchsprüfung und das volle Anwaltspaket zur Vorbereitung.
+                            </p>
+                            <div class="font-mono text-xs text-legal-grayText space-y-2.5 mb-6">
+                                <div class="flex items-center gap-2">✓ Komplette Beweismatrix-Erstellung</div>
+                                <div class="flex items-center gap-2">✓ Vollständiger SHA-256 Audit-Trail</div>
+                                <div class="flex items-center gap-2">✓ Eskalationsmodus bei Versagen der Gegenseite</div>
+                            </div>
+                        </div>
+                        <div class="border-t border-legal-line pt-6 flex items-center justify-between">
+                            <span class="font-mono text-xs text-legal-grayText">Konditionen:</span>
+                            <span class="font-mono text-xl font-bold text-legal-ink">Faire Einigung nach Aufwand</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Kontakt Section -->
+        <section id="kontakt" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <span class="text-legal-redNeon font-mono text-xs uppercase tracking-widest bg-legal-surface px-3.5 py-1.5 border border-legal-redNeon shadow-[0_0_15px_rgba(255,30,66,0.2)] font-bold">Bereit für Ihren Fall?</span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold mt-4 mb-8 font-mono uppercase text-legal-ink tracking-tight">Operator-Schnittstelle & direkte Hilfe</h2>
+            <div class="max-w-xl mx-auto glass-panel p-8 md:p-10 border-legal-line text-left shadow-2xl">
+                <p class="text-legal-grayText font-mono text-xs mb-2 uppercase">Verantwortlicher Betreiber & Architekt:</p>
+                <p class="text-legal-ink font-mono text-xl mb-6 font-extrabold uppercase tracking-wider">Dirk Gerhard Wiederanders</p>
+                <div class="space-y-3 font-mono text-sm mb-8">
+                    <p class="text-legal-grayText flex items-center gap-3"><span class="text-legal-redDim w-16">TEL:</span> <a href="tel:017673598098" class="text-legal-ink hover:text-legal-redNeon transition">0176 / 73598098</a></p>
+                    <p class="text-legal-grayText flex items-center gap-3"><span class="text-legal-redDim w-16">MAIL:</span> <a href="mailto:smokad2000@gmail.com" class="text-legal-ink hover:text-legal-redNeon transition">smokad2000@gmail.com</a></p>
+                    <p class="text-legal-grayText flex items-center gap-3"><span class="text-legal-redDim w-16">LOC:</span> Heinestrasse 11, 67112 Mutterstadt, DE</p>
+                </div>
+                <div class="border-t border-legal-line pt-6 text-center">
+                    <a href="mailto:smokad2000@gmail.com?subject=DIRKS%20Legal%20OS%20V8%20-%20Fallanfrage%20Bürgerhilfe" class="w-full py-4 btn-neon-solid uppercase font-mono text-xs tracking-widest block text-center font-extrabold shadow-xl">Fall oder Behördenbrief per Mail einreichen</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-legal-surface border-t border-legal-line py-12 text-sm text-legal-grayText font-mono">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8 p-6 bg-legal-bg border border-legal-line">
+                <h4 class="font-bold text-legal-ink mb-2 uppercase text-xs">Rechtlicher Hinweis</h4>
+                <p class="text-xs leading-relaxed">Das System DIRKS Legal OS erhebt keinen Anspruch auf Ersatz einer anwaltlichen Rechtsberatung oder einer gerichtlichen Entscheidung.</p>
+            </div>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+                <div class="uppercase tracking-wider font-bold">
+                    &copy; 2026 DIRKS KI-SYSTEM &middot; V8.0 &middot; Human-led Intelligence
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Daten für die 10 Gebote Details
+        const geboteDetails = {
+            1: {
+                title: "Gebot 01: Der Mensch führt",
+                text: "Künstliche Intelligenz ist ein mächtiges Werkzeug, aber sie darf niemals die menschliche Autonomie ersetzen. In DIRKS Legal OS V8 dient das System als strukturierender Assistent und Prüfer. Die finale Verantwortung, die Richtung und jede Entscheidung liegen ausnahmslos beim Menschen (Operator)."
+            },
+            2: {
+                title: "Gebot 02: Quellen vor Behauptungen",
+                text: "Keine Unterstellung bleibt ungeprüft. Jedes Argument, jede Frist und jede Forderung in einem Behördenschreiben wird anhand von harten Fakten, Dokumenten und rechtlichen Grundlagen verifiziert. Spekulationen haben in der V8-Beweismatrix keinen Platz."
+            },
+            3: {
+                title: "Gebot 03: Ergebnisoffenheit",
+                text: "Das System arbeitet frei von Wunschdenken. Es werden nicht nur die eigenen Erfolgsaussichten beleuchtet, sondern aktiv auch die Gegenargumente, Schwachstellen oder Risiken der Gegenseite analysiert, um Überraschungen im Ernstfall auszuschließen."
+            },
+            4: {
+                title: "Gebot 04: Keine Erfindungen (Null Halluzination)",
+                text: "In juristischen Fragen sind erfundene Paragraphen oder Urteile fatal. V8 erzwingt strikte Faktenstreue. Wenn eine Information in den Akten oder Gesetzen nicht eindeutig verifizierbar ist, wird sie als ungesichert deklariert, statt sie zu erfinden."
+            },
+            5: {
+                title: "Gebot 05: Transparente Unsicherheit",
+                text: "Unklarheiten, fehlende Nachweise oder unvollständige Akten werden nicht kaschiert. Sie werden sofort als [BLOCKED] oder Warnung markiert, damit der Anwender sofort erkennt, an welcher Stelle noch Unterlagen nachgereicht werden müssen."
+            },
+            6: {
+                title: "Gebot 06: Beweis vor Schluss",
+                text: "Es wird strikt zwischen reinen Behauptungen der Behörden und objektiv beweisbaren Tatsachen unterschieden. Erst wenn die Beweiskette steht, wird die rechtliche Bewertung und die Entgegnung formuliert."
+            },
+            7: {
+                title: "Gebot 07: Menschliche Freigabe",
+                text: "Kein Dokument, kein Widerspruch und keine Antwort verlässt das System ohne die ausdrückliche, bewusste und dokumentierte Freigabe durch den Menschen. Automatisierte Blindschreiben sind ausgeschlossen."
+            },
+            8: {
+                title: "Gebot 08: Datensparsamkeit & Schutz",
+                text: "Sensible personenbezogene Daten, Aktenzeichen und private Lebensumstände werden mit maximalem Schutz behandelt. Es gilt das Prinzip der absoluten Vertraulichkeit und Datensparsamkeit."
+            },
+            9: {
+                title: "Gebot 09: Deeskalation mit harten Fakten",
+                text: "Das Ziel ist nicht der emotionale Streit, sondern die sachliche Durchsetzung des Rechts. Die Formulierungen sind bestimmt, unerbittlich in der Sache, aber frei von unangebrachten Drohungen – sachliche Stärke schlägt lautes Poltern."
+            },
+            10: {
+                title: "Gebot 10: Nachvollziehbarkeit & Audit-Trail",
+                text: "Jeder Analyseschritt, jede Änderung und jede logische Schlussfolgerung wird transparent im System protokolliert (gesichert über SHA-256 Validierungs-Hashes), sodass der Fall jederzeit lückenlos nachvollziehbar ist."
+            }
+        };
+
+        function openGebot(id) {
+            const modal = document.getElementById('gebot-modal');
+            const content = document.getElementById('modal-content');
+            const gebot = geboteDetails[id];
+
+            if(gebot) {
+                content.innerHTML = `
+                    <div class="text-legal-redNeon font-bold text-sm uppercase border-b border-legal-line pb-2">${gebot.title}</div>
+                    <p class="text-legal-ink leading-relaxed pt-2">${gebot.text}</p>
+                    <div class="pt-4 border-t border-legal-line text-right">
+                        <button onclick="closeGebotModal()" class="px-4 py-2 btn-neon uppercase text-[10px]">Verstanden</button>
+                    </div>
+                `;
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeGebotModal() {
+            document.getElementById('gebot-modal').classList.add('hidden');
+        }
+
+        function runCheck(type) {
+            const resultBox = document.getElementById('check-result');
+            resultBox.innerHTML = `<p class="text-legal-redNeon animate-pulse font-bold">>> Lade V8-Beweismatrix und verarbeite Parameter...</p>`;
+            
+            setTimeout(() => {
+                let content = "";
+                if(type === 'bescheid') {
+                    content = `
+                        <div class="text-legal-ink font-bold border-b border-legal-line pb-2 mb-2 flex justify-between items-center">
+                            <span>[ANALYSE-ERGEBNIS: BESCHEID-CHECK]</span>
+                            <span class="text-legal-redNeon font-mono">STATUS: FAKTEN GEKLÄRT</span>
+                        </div>
+                        <p class="text-legal-ink">> <strong>Befund:</strong> Überproportionale Drohkulisse bei oft unklarer Rechtsgrundlage.</p>
+                        <p>> <strong>V8-Maßnahme:</strong> Sofortige Trennung von Behauptung und tatsächlicher Rechtsnorm.</p>
+                        <p class="text-legal-redNeon mt-2 font-bold">> Empfehlung: 1-2 präzise Briefantworten anfordern, um den Spieß umzudrehen.</p>
+                    `;
+                } else if(type === 'frist') {
+                    content = `
+                        <div class="text-legal-ink font-bold border-b border-legal-line pb-2 mb-2 flex justify-between items-center">
+                            <span>[ANALYSE-ERGEBNIS: FRISTEN-WÄCHTER]</span>
+                            <span class="text-legal-redNeon font-mono">STATUS: STOPP-REGEL AKTIV</span>
+                        </div>
+                        <p class="text-legal-ink">> <strong>Befund:</strong> Künstlicher Zeitdruck ist das älteste Instrument zur Einschüchterung.</p>
+                        <p>> <strong>V8-Maßnahme:</strong> Deterministische Fristenprüfung inkl. Zustellnachweis-Check.</p>
+                        <p class="text-legal-redNeon mt-2 font-bold">> Empfehlung: Fristwahrung dokumentieren, Aktenlage sofort strukturieren lassen.</p>
+                    `;
+                } else {
+                    content = `
+                        <div class="text-legal-ink font-bold border-b border-legal-line pb-2 mb-2 flex justify-between items-center">
+                            <span>[ANALYSE-ERGEBNIS: ESKALATIONSMODUS]</span>
+                            <span class="text-legal-redNeon font-mono">STATUS: WIDERSPRÜCHE ERKANNT</span>
+                        </div>
+                        <p class="text-legal-ink">> <strong>Befund:</strong> Die Gegenseite hat sich in Aktenvermerken widersprochen.</p>
+                        <p>> <strong>V8-Maßnahme:</strong> Auslösung des Eskalationsmoduls zur sachlichen Bloßstellung.</p>
+                        <p class="text-legal-redNeon mt-2 font-bold">> Empfehlung: Vollständiges Anwaltspaket vorbereiten.</p>
+                    `;
+                }
+                resultBox.innerHTML = content;
+            }, 400);
+        }
+
+        async function runGeminiAnalysis() {
+            const inputVal = document.getElementById('user-case-input').value.trim();
+            const outputContainer = document.getElementById('gemini-output-container');
+            const outputText = document.getElementById('gemini-output-text');
+            const btn = document.getElementById('analyze-btn');
+
+            if (!inputVal) {
+                alert('Bitte geben Sie zuerst Stichpunkte zu Ihrem Fall ein.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Analysiere Fall...';
+            outputContainer.classList.remove('hidden');
+            outputText.innerHTML = '<span class="text-legal-redNeon animate-pulse font-bold">>> V8 Core verbindet sich mit Gemini API und prüft Beweismatrix...</span>';
+
+            const systemPrompt = "Act as DIRKS Legal OS V8, an unyielding, professional, factual and human-centered legal-tech framework created by Dirk Gerhard Wiederanders. Analyze the user's case strictly based on facts, separate allegations from proof, check deadlines, and provide a clear, empathetic yet rigorous structured evaluation in German.";
+            
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: inputVal }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            let success = false;
+            let attempts = 0;
+            let resultText = "";
+
+            while (!success && attempts < 4) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const result = await response.json();
+                    const candidate = result.candidates?.[0];
+
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        resultText = candidate.content.parts[0].text;
+                        success = true;
+                    } else {
+                        throw new Error('Unexpected response structure.');
+                    }
+                } catch (e) {
+                    attempts++;
+                    const delay = Math.pow(2, attempts) * 1000;
+                    await new Promise(res => setTimeout(res, delay));
+                }
+            }
+
+            if (success) {
+                outputText.innerText = resultText;
+            } else {
+                outputText.innerText = "[FEHLER] Analyse konnte nach mehreren Versuchen nicht abgeschlossen werden.";
+            }
+
+            btn.disabled = false;
+            btn.innerText = 'Analyse starten ⚡';
+        }
+    </script>
+</body>
+</html>
+
+```
