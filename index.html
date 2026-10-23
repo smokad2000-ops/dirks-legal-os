@@ -129,9 +129,18 @@ Du kannst den Code kopieren, als `index.html` speichern und wie gewohnt hochlade
             animation: scanline 5s linear infinite;
             pointer-events: none;
         }
+
+        .side-banner { position: fixed; top: 50%; transform: translateY(-50%); z-index: 40; width: 120px; height: 600px; display: none; }
+        .side-banner img { display: block; width: 120px; height: 600px; }
+        .side-banner-left { left: 8px; }
+        .side-banner-right { right: 8px; }
+        @media (min-width: 1500px) and (min-height: 640px) { .side-banner { display: block; } }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col matrix-bg">
+<a class="side-banner side-banner-left" href="https://app.profiseller.de/shop/dsl?ps_id=P318103514" target="_blank" rel="noopener noreferrer sponsored" aria-label="Werbung: DSL-Angebote (öffnet in neuem Tab)"><img width="120" height="600" src="https://app.profiseller.de/produkt-banner/dsl/120x600" border="0" alt="Werbebanner: DSL-Angebote"></a>
+<a class="side-banner side-banner-right" href="https://app.profiseller.de/shop/dsl?ps_id=P318103514" target="_blank" rel="noopener noreferrer sponsored" aria-label="Werbung: DSL-Angebote (öffnet in neuem Tab)"><img width="120" height="600" src="https://app.profiseller.de/produkt-banner/dsl/120x600" border="0" alt="Werbebanner: DSL-Angebote"></a>
+
 
     <nav class="fixed w-full z-50 glass-panel border-b border-legal-line backdrop-blur-xl bg-opacity-95">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
